@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:frm="http://www.ldd600.com/exception/frm"
+	targetNamespace="http://www.ldd600.com/exception/frm"
+	elementFormDefault="qualified" attributeFormDefault="unqualified">
+	<xsd:complexType name="exceptionType">
+		<xsd:sequence>
+			<xsd:element name="level" default="error" minOccurs="0">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="error" />
+						<xsd:enumeration value="warning" />
+						<xsd:enumeration value="info" />
+						<xsd:enumeration value="confirmation" />
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:element>
+			<xsd:element name="handler" maxOccurs="unbounded">
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string" />
+				</xsd:simpleType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="errorCode">
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:whiteSpace value="preserve" />
+					<xsd:pattern value="LDD600-+\d{1,5}.*" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+		<xsd:attribute name="class" type="xsd:string" use="required" />
+	</xsd:complexType>
+	<xsd:attributeGroup name="beanReaderGroup">
+		<xsd:attribute name="lazy" type="xsd:boolean">
+			<xsd:annotation>
+				<xsd:documentation>
+					Defines if the scanned beans should be lazy
+					initialized or not
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="scope" type="xsd:string">
+			<xsd:annotation>
+				<xsd:documentation>
+					defines the scope of the scanned beans, for example
+					"singleton" or "prototype", in web applications
+					"request" or "session" or a custom created scope
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="autoWire">
+			<xsd:annotation>
+				<xsd:documentation>
+					Defines the autowire mode for the scanned beans
+				</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="INHERITED" />
+					<xsd:enumeration value="BY_NAME" />
+					<xsd:enumeration value="BY_TYPE" />
+					<xsd:enumeration value="NO" />
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:attributeGroup>
+	<xsd:group name="beanLoadGroup">
+		<xsd:sequence>
+			<xsd:choice>
+				<xsd:element name="includePackage" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
+    defines that the scanner will only include files that match with this recular expression.
+                        ]]></xsd:documentation>
+					</xsd:annotation>
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:whiteSpace value="collapse" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+			</xsd:choice>
+			<xsd:choice>
+				<xsd:element name="excludePackage" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[
+    defines that the scanner will not include files that match with this recular expression.
+                        ]]></xsd:documentation>
+					</xsd:annotation>
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:whiteSpace value="collapse" />
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:element>
+			</xsd:choice>
+		</xsd:sequence>
+	</xsd:group>
+	<xsd:complexType name="annotationLoadType">
+		<xsd:sequence>
+			<xsd:group ref="frm:beanLoadGroup" />
+			<xsd:element name="alternateAnnotation" minOccurs="0"
+				maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>
+						Defines a bean reader for the specified
+						annotation type
+					</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:choice>
+						<xsd:element name="beanReader" minOccurs="0">
+							<xsd:annotation>
+								<xsd:documentation>
+									Configures an instance of a
+									GenericAnnotationBeanReader with the
+									specified attributes
+								</xsd:documentation>
+							</xsd:annotation>
+							<xsd:complexType>
+								<xsd:attributeGroup
+									ref="frm:beanReaderGroup" />
+							</xsd:complexType>
+						</xsd:element>
+						<!-- xsd:element name="beanReaderClass" type="xsd:string">
+							<xsd:annotation>
+							<xsd:documentation>
+							Alternate custom created class for the bean Reader, the class must implement the interface
+							net.sourceforge.sannotations.utils.IBeanReader
+							</xsd:documentation>
+							</xsd:annotation></xsd:element-->
+					</xsd:choice>
+					<xsd:attribute name="annotation" type="xsd:string"
+						use="required">
+						<xsd:annotation>
+							<xsd:documentation>
+								inform the annotation class to be used
+								for the scanning
+							</xsd:documentation>
+						</xsd:annotation>
+					</xsd:attribute>
+				</xsd:complexType>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="scanDirs" type="xsd:boolean" use="optional"
+			default="true">
+			<xsd:annotation>
+				<xsd:documentation>
+					Configures the class scanning to scan all open
+					directories or not
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+		<xsd:attribute name="jarMarkerFile" type="xsd:string"
+			use="optional" default="annotation.properties">
+			<xsd:annotation>
+				<xsd:documentation>
+					configures the name of the file used to mark the jar
+					files to be scanned, the jar file should be in the
+					root of the jar file
+				</xsd:documentation>
+			</xsd:annotation>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="config">
+		<xsd:complexType>
+			<xsd:all>
+				<xsd:element name="exceptions" minOccurs="0">
+					<xsd:complexType>
+						<xsd:choice>
+							<xsd:element name="exception"
+								type="frm:exceptionType" />
+						</xsd:choice>
+					</xsd:complexType>
+					<xsd:key name="exceptionCodeKey">
+						<xsd:selector xpath=".//frm:exception" />
+						<xsd:field xpath="@errorCode" />
+					</xsd:key>
+				</xsd:element>
+				<xsd:element name="annotationAutoLoad"
+					type="frm:annotationLoadType" minOccurs="0">
+					<xsd:key name="annotationKey">
+						<xsd:selector
+							xpath=".//frm:alternateAnnotation" />
+						<xsd:field xpath="@annotation" />
+					</xsd:key>
+				</xsd:element>
+			</xsd:all>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
